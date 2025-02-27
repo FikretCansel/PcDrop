@@ -1,0 +1,15 @@
+Metadata-Version: 2.2
+Name: file-transfer
+Version: 1.0.0
+Summary: A FastAPI application for transferring files via a web interface with a tkinter GUI for directory selection
+Author: Your Name
+Author-email: your_email@example.com
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: jinja2
+Requires-Dist: aiofiles
+Requires-Dist: tkinter
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: summary

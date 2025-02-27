@@ -48,6 +48,7 @@
 
             request.onload = function () {
                 if (request.status === 200) {
+                    progressContainer.style.display = "none"
                     statusText.innerHTML = "Yükleme tamamlandı!";
                 } else {
                     statusText.innerHTML = "Yükleme hatası!";
