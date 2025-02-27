@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çoklu Dosya Yükleme</title>
+    <!-- CSS Dosyasına Bağlantı -->
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Çoklu Dosya Yükleme</h2>
+        <p><strong>Bağlantı Adresi (Aynı Ağdaki Cihazlar için):</strong> <code>http://{{ local_ip }}:8000</code></p>
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="files" multiple>
+            <input type="submit" value="Yükle">
+        </form>
+
+        <!-- Yükleme Durumu Çubuğu -->
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const progressContainer = document.getElementById("progress-container");
+        const progressBar = document.getElementById("progress-bar");
+        const statusText = document.getElementById("status");
+
+        form.onsubmit = async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const request = new XMLHttpRequest();
+
+            request.open("POST", "/upload", true);
+
+            request.upload.onprogress = function (event) {
+                if (event.lengthComputable) {
+                    const percentage = (event.loaded / event.total) * 100;
+                    progressBar.style.width = percentage + "%";
+                    statusText.innerHTML = "Yükleniyor... " + Math.round(percentage) + "%";
+                }
+            };
+
+            request.onload = function () {
+                if (request.status === 200) {
+                    statusText.innerHTML = "Yükleme tamamlandı!";
+                } else {
+                    statusText.innerHTML = "Yükleme hatası!";
+                }
+            };
+
+            progressContainer.style.display = "block"; // Yükleme çubuğunu göster
+            request.send(formData);
+        };
+    </script>
+
+</body>
+</html>
