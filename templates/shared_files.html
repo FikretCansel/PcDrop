@@ -112,14 +112,17 @@
 
     <script>
         function downloadAll() {
-            {% for file_url in file_urls %}
-                // Dosyaların her birini indir
-                const link = document.createElement('a');
-                link.href = "{{ file_url }}";
-                link.download = link.href.split('/').pop(); // Dosya adı
-                link.click();
-            {% endfor %}
-        }
+    console.log('Çalıştı');
+    {% for file in files %}
+        setTimeout(function() {
+            const link = document.createElement('a');
+            link.href = "/download/{{ file }}";
+            link.download = link.href.split('/').pop();
+            link.click();
+            console.log('İndirildi: {{ file }}');
+        }, 1000 * {{ loop.index }});
+    {% endfor %}
+}
     </script>
 </body>
 </html>
