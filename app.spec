@@ -4,7 +4,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('static/*', 'static'), ('templates/*', 'templates')],  # static ve templates içindeki tüm dosyalar
+    datas=[('static/*', 'static'), ('templates/*', 'templates')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

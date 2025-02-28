@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'run-file-transfer = app:main',  # Eğer bir main fonksiyonu varsa
+            'run-file-transfer = app:main',
         ]
     },
 )
