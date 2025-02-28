@@ -1,3 +1,4 @@
 build
 .venv
+.idea
 file_transfer.egg-info
