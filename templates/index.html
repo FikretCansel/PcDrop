@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çoklu Dosya Yükleme</title>
-    <!-- CSS Dosyasına Bağlantı -->
+    <title>PcDrop- Dosya yükle</title>
+    <!-- Link to CSS File -->
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 </head>
 <body>
 
     <div class="container">
-        <h2>Çoklu Dosya Yükleme</h2>
+        <h2>Welcome to PcDrop</h2>
         <p><strong>Bağlantı Adresi (Aynı Ağdaki Cihazlar için):</strong> <code>http://{{ local_ip }}:8000</code></p>
         <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
             <input type="file" name="files" multiple>
             <input type="submit" value="Yükle">
         </form>
 
-        <!-- Yükleme Durumu Çubuğu -->
+        <!-- Upload Status Bar -->
         <div id="progress-container">
             <div id="progress-bar"></div>
         </div>
@@ -42,20 +43,20 @@
                 if (event.lengthComputable) {
                     const percentage = (event.loaded / event.total) * 100;
                     progressBar.style.width = percentage + "%";
-                    statusText.innerHTML = "Yükleniyor... " + Math.round(percentage) + "%";
+                    statusText.innerHTML = "Uploading... " + Math.round(percentage) + "%";
                 }
             };
 
             request.onload = function () {
                 if (request.status === 200) {
                     progressContainer.style.display = "none"
-                    statusText.innerHTML = "Yükleme tamamlandı!";
+                    statusText.innerHTML = "Upload completed!";
                 } else {
-                    statusText.innerHTML = "Yükleme hatası!";
+                    statusText.innerHTML = "Upload error!";
                 }
             };
 
-            progressContainer.style.display = "block"; // Yükleme çubuğunu göster
+            progressContainer.style.display = "block"; // Show the progress bar
             request.send(formData);
         };
     </script>

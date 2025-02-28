@@ -80,6 +80,9 @@ def start_gui():
     root.geometry("450x350")
     root.configure(bg="#f0f0f0")
 
+    # Set window icon
+    root.iconbitmap(os.path.join(base_path, "static", "favicon.ico"))  # Set the app icon
+
     # Title label for the window
     title_label = tk.Label(root, text="PcDrop Uygulaması", font=("Arial", 18), bg="#f0f0f0")
     title_label.grid(row=0, column=0, columnspan=2, pady=10)
