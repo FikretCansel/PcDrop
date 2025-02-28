@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paylaşılan Dosyalar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .file-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .file-item a:hover {
+            text-decoration: underline;
+        }
+
+        .file-item .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .file-item .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        .back-link {
+            margin-top: 30px;
+            font-size: 16px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .download-all-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .download-all-btn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Paylaşılan Dosyalar</h1>
+
+    <ul class="file-list">
+        {% for file in files %}
+            <li class="file-item">
+                <span>{{ file }}</span>
+                <a href="/download/{{ file }}" download class="download-btn">İndir</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <button class="download-all-btn" onclick="downloadAll()">Tümünü İndir</button>
+
+    <a href="/" class="back-link">Ana Sayfaya Dön</a>
+
+    <script>
+        function downloadAll() {
+            {% for file_url in file_urls %}
+                // Dosyaların her birini indir
+                const link = document.createElement('a');
+                link.href = "{{ file_url }}";
+                link.download = link.href.split('/').pop(); // Dosya adı
+                link.click();
+            {% endfor %}
+        }
+    </script>
+</body>
+</html>
