@@ -10,29 +10,23 @@ import threading
 import tkinter as tk
 from tkinter import filedialog
 
+# Determine base path depending on execution mode
 if getattr(sys, 'frozen', False):
-    # Eğer PyInstaller ile paketlendiyse
-    base_path = sys._MEIPASS
+    base_path = sys._MEIPASS  # PyInstaller bundled app
 else:
-    # Geliştirme aşamasında
-    base_path = os.path.abspath(".")
+    base_path = os.path.abspath(".")  # Development mode
 
 static_folder = os.path.join(base_path, "static")
 templates_folder = os.path.join(base_path, "templates")
 
-
 app = FastAPI()
-
-# Statik dosyalar için klasör ayarlıyoruz
 app.mount("/static", StaticFiles(directory=static_folder), name="static")
-
-# Jinja2 şablonları için klasör ayarlıyoruz
 templates = Jinja2Templates(directory=templates_folder)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Bilgisayarın yerel (local) IP adresini almak için
+# Get local IP address
 def get_local_ip():
     try:
         hostname = socket.gethostname()
@@ -43,30 +37,39 @@ def get_local_ip():
 
 LOCAL_IP = get_local_ip()
 
-# Tkinter GUI'yi çalıştıran fonksiyon
+# Open a directory selection dialog
 def select_directory():
     root = tk.Tk()
-    root.withdraw()  # Ana pencereyi gizle
+    root.withdraw()
     directory = filedialog.askdirectory(title="Dosyanın Yükleneceği Klasörü Seçin")
-    root.destroy()  # Pencereyi kapat
+    root.destroy()
     return directory
 
-# Tkinter GUI'yi çalıştıran fonksiyon thread üzerinden çalıştırılacak
+# Start the Tkinter GUI
 def start_gui():
-    global upload_directory
+    global upload_directory, root
+
     upload_directory = select_directory()
-    print(f"Seçilen Klasör: {upload_directory}")
+    print(f"Selected Folder: {upload_directory}")
+
     root = tk.Tk()
-    root.title("Dosya Yükleme Arayüzü")
+    root.title("PcDrop")
+
+    # Ensure app exits completely when GUI is closed
+    def on_closing():
+        print("Application is shutting down...")
+        root.destroy()
+        os._exit(0)
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
 
-# FastAPI uygulamasını başlatırken tkinter GUI'sini thread'de çalıştır
+# Run the GUI in a separate thread
 @app.on_event("startup")
 async def startup_event():
-    print("\n📢 **Uygulama Çalışıyor!**")
-    print(f"🌍 **Bağlantı için:** http://{LOCAL_IP}:8000\n")
-    # Tkinter GUI'yi başlatmak için ayrı bir thread kullanıyoruz
-    threading.Thread(target=start_gui).start()
+    print("\n📢 **Application is running!**")
+    print(f"🌍 **Access it at:** http://{LOCAL_IP}:8000\n")
+    threading.Thread(target=start_gui, daemon=True).start()
 
 @app.get("/", response_class=HTMLResponse)
 async def main(request: Request):
@@ -75,20 +78,18 @@ async def main(request: Request):
 @app.post("/upload")
 async def upload_files(files: list[UploadFile] = File(...)):
     saved_files = []
-    if upload_directory:  # Eğer bir klasör seçildiyse
+    if upload_directory:
         for file in files:
             file_path = os.path.join(upload_directory, file.filename)
             with open(file_path, "wb") as f:
                 f.write(await file.read())
             saved_files.append(file.filename)
     else:
-        return {"message": "Bir klasör seçmediniz!"}
+        return {"message": "Bir klasör seçmediniz!"}  # User-facing message in Turkish
 
     return {"message": "Dosyalar başarıyla yüklendi!", "filenames": saved_files}
 
 if __name__ == "__main__":
     import uvicorn
-
-    # Uygulama çalışırken Tkinter penceresini başlatacak
-    print(f"🌍 **Bağlantı için:** http://{LOCAL_IP}:8000\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None, log_level="debug")
+    print(f"🌍 **Access it at:** http://{LOCAL_IP}:8000\n")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)

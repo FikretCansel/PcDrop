@@ -1,0 +1,3 @@
+build
+.venv
+file_transfer.egg-info
