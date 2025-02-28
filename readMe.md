@@ -4,6 +4,15 @@
 
 **pc-drop** is a file transfer web application based on FastAPI and includes a Tkinter GUI for selecting files. This project provides users with a platform to perform file transfers quickly and easily.
 
+![image](https://github.com/user-attachments/assets/bba74871-e50c-44b3-b78f-043f9200095d)
+
+![image](https://github.com/user-attachments/assets/4eeb4c79-fce0-43e1-b9f1-a0d57eb9a021)
+
+![image](https://github.com/user-attachments/assets/2832c6ae-ce31-4a32-b8fd-e11764f8838b)
+
+
+
+
 ## Requirements
 
 The following requirements must be installed for the project to work:
