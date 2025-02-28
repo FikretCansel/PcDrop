@@ -1,7 +1,0 @@
-setup.py
-file_transfer.egg-info/PKG-INFO
-file_transfer.egg-info/SOURCES.txt
-file_transfer.egg-info/dependency_links.txt
-file_transfer.egg-info/entry_points.txt
-file_transfer.egg-info/requires.txt
-file_transfer.egg-info/top_level.txt

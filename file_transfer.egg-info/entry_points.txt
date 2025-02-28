@@ -1,2 +1,0 @@
-[console_scripts]
-run-file-transfer = app:main
