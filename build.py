@@ -12,6 +12,9 @@ def build_exe():
             '--add-data=static/*;static',
             '--add-data=static/css/*;static/css',  # Add CSS subfolder explicitly
             '--add-data=templates/*;templates',
+            '--hidden-import=qrcode',
+            '--hidden-import=websockets.legacy.client',
+            '--hidden-import=websockets.legacy.server',
             '--icon=static/favicon.ico'
         ])
     except Exception as e:

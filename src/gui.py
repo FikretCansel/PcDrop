@@ -5,6 +5,9 @@ import asyncio
 import websockets
 import threading
 import time
+import qrcode
+from PIL import Image, ImageTk
+from io import BytesIO
 from src.config import config, save_config, upload_directory, shared_directory
 from src.utils import base_path, LOCAL_IP
 
@@ -114,8 +117,8 @@ def start_gui():
         save_config(config)
 
     # Window configuration
-    window_width = 900
-    window_height = 750
+    window_width = 1200
+    window_height = 1000
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     center_x = int(screen_width/2 - window_width/2)
@@ -260,19 +263,71 @@ def start_gui():
     server_status = ttk.Label(status_frame, text="✓ Sunucu Çalışıyor (Mesajlaşma Bağlanıyor...)", style='Status.TLabel')
     server_status.pack()
 
-    # Connection info with icon
-    connection_frame = ttk.Frame(status_frame)
-    connection_frame.pack(pady=5)
+    # Connection info with improved visibility
+    connection_frame = ttk.LabelFrame(status_frame, text="📱 Bağlantı Bilgileri", padding=15)
+    connection_frame.pack(pady=10, fill=tk.X)
+
+    # Create QR code
+    url = f"http://{LOCAL_IP}:8000"
+    qr = qrcode.QRCode(version=1, box_size=4, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    qr_image = qr.make_image(fill_color="#4361ee", back_color="white")
     
-    ttk.Label(connection_frame, text="🌐", font=('Segoe UI', 14)).pack(side=tk.LEFT, padx=(0, 5))
-    address_label = ttk.Label(connection_frame, text=f"http://{LOCAL_IP}:8000", style='Address.TLabel')
+    # Convert QR code to PhotoImage
+    qr_bytes = BytesIO()
+    qr_image.save(qr_bytes, format='PNG')
+    qr_bytes.seek(0)
+    qr_photo = ImageTk.PhotoImage(Image.open(qr_bytes))
+
+    # QR code and connection info side by side
+    info_container = ttk.Frame(connection_frame)
+    info_container.pack(fill=tk.X)
+
+    # Left side - Connection text
+    text_frame = ttk.Frame(info_container)
+    text_frame.pack(side=tk.LEFT, padx=(0, 20))
+
+    ttk.Label(text_frame, 
+             text="Web tarayıcınızdan aşağıdaki adrese giderek\nveya QR kodu mobil cihazınızla okutarak\ndosyalarınızı yönetebilirsiniz:",
+             justify=tk.LEFT).pack(anchor=tk.W)
+
+    url_frame = ttk.Frame(text_frame)
+    url_frame.pack(fill=tk.X, pady=(10, 0))
+    
+    address_label = ttk.Label(url_frame, 
+                            text=url,
+                            style='Address.TLabel',
+                            font=('Segoe UI', 14, 'bold'))
     address_label.pack(side=tk.LEFT)
 
-    # Info text
-    info_label = ttk.Label(status_frame, 
-                          text="Web tarayıcınızdan yukarıdaki adrese giderek\ndosyalarınızı yönetebilirsiniz", 
-                          justify=tk.CENTER)
-    info_label.pack(pady=10)
+    def copy_url():
+        root.clipboard_clear()
+        root.clipboard_append(url)
+        copy_btn.config(text="✓ Kopyalandı")
+        root.after(2000, lambda: copy_btn.config(text="📋 Kopyala"))
+
+    copy_btn = ttk.Button(url_frame, text="📋 Kopyala", command=copy_url)
+    copy_btn.pack(side=tk.LEFT, padx=(10, 0))
+
+    # Right side - QR code
+    qr_frame = ttk.Frame(info_container)
+    qr_frame.pack(side=tk.RIGHT)
+    
+    qr_label = ttk.Label(qr_frame, image=qr_photo)
+    qr_label.image = qr_photo  # Keep a reference!
+    qr_label.pack()
+
+    # Update styles
+    style = ttk.Style()
+    style.configure('TButton', padding=10, font=('Segoe UI', 11))
+    style.configure('TLabel', font=('Segoe UI', 11))
+    style.configure('Header.TLabel', font=('Segoe UI', 26, 'bold'))
+    style.configure('Subheader.TLabel', font=('Segoe UI', 14, 'bold'))
+    style.configure('Status.TLabel', font=('Segoe UI', 12), foreground='green')
+    style.configure('Address.TLabel', font=('Segoe UI', 12), foreground='blue')
+    style.configure('Section.TLabelframe.Label', font=('Segoe UI', 12, 'bold'))
+    style.configure('Path.TLabel', font=('Segoe UI', 10), foreground='#666666')
 
     # Start WebSocket connection in a separate thread
     threading.Thread(target=start_websocket, daemon=True).start()
