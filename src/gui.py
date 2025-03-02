@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
+import asyncio
+import websockets
+import threading
+import time
+# Import directly from config instead of through __init__
 from src.config import config, save_config, upload_directory, shared_directory
 from src.utils import base_path, LOCAL_IP
 
@@ -19,7 +24,7 @@ def start_gui():
     
     # Set window size and make it non-resizable
     window_width = 800
-    window_height = 600
+    window_height = 700  # Increased height for message area
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     center_x = int(screen_width/2 - window_width/2)
@@ -139,11 +144,86 @@ def start_gui():
     goto_shared_btn = ttk.Button(shared_buttons_frame, text="Klasöre Git", command=go_to_shared_folder)
     goto_shared_btn.pack(side=tk.LEFT)
 
-    # Status section at bottom
+    # Message section with improved WebSocket handling
+    message_frame = ttk.LabelFrame(main_frame, text="Mesajlaşma", padding="10")
+    message_frame.pack(fill=tk.X, pady=10)
+
+    message_text = tk.Text(message_frame, height=3, width=50)
+    message_text.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+
+    websocket_connection = None
+    connection_retry_count = 0
+
+    def send_message():
+        message = message_text.get("1.0", tk.END).strip()
+        if message:
+            asyncio.run(send_ws_message(message))
+            message_text.delete("1.0", tk.END)
+
+    send_button = ttk.Button(message_frame, text="Gönder", command=send_message)
+    send_button.pack(side=tk.RIGHT)
+
+    received_text = tk.Text(message_frame, height=3, width=50, state='disabled')
+    received_text.pack(side=tk.BOTTOM, fill=tk.X, expand=True, pady=(10, 0))
+
+    async def connect_websocket():
+        global websocket_connection, connection_retry_count
+        uri = f"ws://{LOCAL_IP}:8000/ws"
+        
+        while True:
+            try:
+                if websocket_connection is None:
+                    websocket_connection = await websockets.connect(uri)
+                    connection_retry_count = 0
+                    root.after(0, update_connection_status, True)
+                
+                message = await websocket_connection.recv()
+                root.after(0, update_received_text, message)
+            except websockets.ConnectionClosed:
+                websocket_connection = None
+                root.after(0, update_connection_status, False)
+                await asyncio.sleep(min(2 ** connection_retry_count, 30))
+                connection_retry_count += 1
+            except Exception as e:
+                print(f"WebSocket error: {e}")
+                websocket_connection = None
+                root.after(0, update_connection_status, False)
+                await asyncio.sleep(5)
+
+    def update_received_text(message):
+        received_text.config(state='normal')
+        received_text.delete("1.0", tk.END)
+        received_text.insert("1.0", message)
+        received_text.config(state='disabled')
+
+    def update_connection_status(is_connected):
+        if is_connected:
+            server_status.config(text="✓ Sunucu Çalışıyor (Mesajlaşma Bağlı)")
+        else:
+            server_status.config(text="⚠ Sunucu Çalışıyor (Mesajlaşma Bağlantısı Kesik)")
+
+    async def send_ws_message(message):
+        global websocket_connection
+        if websocket_connection:
+            try:
+                await websocket_connection.send(message)
+            except:
+                websocket_connection = None
+                root.after(0, update_connection_status, False)
+
+    def start_websocket():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(connect_websocket())
+
+    # Start WebSocket connection in a separate thread
+    threading.Thread(target=start_websocket, daemon=True).start()
+
+    # Status section at bottom with initial connection status
     status_frame = ttk.Frame(main_frame)
     status_frame.pack(fill=tk.X, pady=(20, 0))
 
-    server_status = ttk.Label(status_frame, text="✓ Sunucu Çalışıyor", style='Status.TLabel')
+    server_status = ttk.Label(status_frame, text="✓ Sunucu Çalışıyor (Mesajlaşma Bağlanıyor...)", style='Status.TLabel')
     server_status.pack()
 
     address_label = ttk.Label(status_frame, text=f"http://{LOCAL_IP}:8000", style='Address.TLabel')

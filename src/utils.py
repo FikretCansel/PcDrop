@@ -13,7 +13,7 @@ def get_local_ip():
 def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS  # PyInstaller bundled app
-    return os.path.abspath(".")  # Development mode
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Development mode - go up one directory from src
 
 LOCAL_IP = get_local_ip()
 base_path = get_base_path()

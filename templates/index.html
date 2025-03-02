@@ -20,6 +20,16 @@
             <a href="/shared_files" class="view-files-btn">📁 Paylaşılan Dosyaları Görüntüle</a>
         </div>
 
+        <!-- Message section -->
+        <div class="message-section">
+            <h3>Mesajlaşma <span id="connectionStatus" class="connection-status">Bağlanıyor...</span></h3>
+            <div class="message-display" id="messageDisplay"></div>
+            <div class="message-input-container">
+                <input type="text" id="messageInput" placeholder="Mesajınızı yazın...">
+                <button id="sendButton" class="send-btn">Gönder</button>
+            </div>
+        </div>
+
         <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
             <div class="file-upload-container">
                 <input type="file" name="files" multiple id="fileInput">
@@ -128,6 +138,64 @@
             progressContainer.style.display = "block";
             request.send(formData);
         };
+
+        // WebSocket messaging with reconnection logic
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messageDisplay = document.getElementById('messageDisplay');
+        const connectionStatus = document.getElementById('connectionStatus');
+        let socket = null;
+        let reconnectAttempts = 0;
+        const maxReconnectDelay = 30000; // 30 seconds
+
+        function connect() {
+            if (socket) return;
+
+            socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
+
+            socket.onopen = function() {
+                connectionStatus.textContent = "Bağlı";
+                connectionStatus.className = "connection-status connected";
+                reconnectAttempts = 0;
+            };
+
+            socket.onmessage = function(event) {
+                messageDisplay.textContent = event.data;
+            };
+
+            socket.onclose = function() {
+                connectionStatus.textContent = "Bağlantı Kesik - Yeniden Bağlanıyor...";
+                connectionStatus.className = "connection-status disconnected";
+                socket = null;
+
+                // Exponential backoff for reconnection
+                const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+                setTimeout(connect, delay);
+                reconnectAttempts++;
+            };
+
+            socket.onerror = function(error) {
+                console.error("WebSocket error:", error);
+            };
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+                messageInput.value = '';
+            }
+        }
+
+        sendButton.onclick = sendMessage;
+        messageInput.onkeypress = function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        };
+
+        // Initial connection
+        connect();
     </script>
 </body>
 </html>

@@ -1,15 +1,49 @@
 import os
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File, Request
+from fastapi import APIRouter, UploadFile, File, Request, WebSocket
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from PIL import Image
 from PIL.ExifTags import TAGS
 from src.utils import LOCAL_IP, templates_folder
 from src.config import config, upload_directory, shared_directory
+import asyncio
+from typing import List
 
 router = APIRouter()
 templates = Jinja2Templates(directory=templates_folder)
+
+# Store active websocket connections
+websocket_connections: List[WebSocket] = []
+
+# Store the current message
+current_message = ""
+
+async def broadcast_message(message: str):
+    """Broadcast message to all connected clients"""
+    global current_message
+    current_message = message
+    for connection in websocket_connections:
+        try:
+            await connection.send_text(message)
+        except:
+            websocket_connections.remove(connection)
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    websocket_connections.append(websocket)
+    try:
+        # Send current message to new connection
+        if current_message:
+            await websocket.send_text(current_message)
+        
+        # Listen for messages
+        while True:
+            message = await websocket.receive_text()
+            await broadcast_message(message)
+    except:
+        websocket_connections.remove(websocket)
 
 def get_file_date(file_path):
     try:

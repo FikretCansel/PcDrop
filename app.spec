@@ -9,7 +9,7 @@ a = Analysis(
         ('static/css/*', 'static/css'),
         ('templates/*', 'templates')
     ],
-    hiddenimports=[],
+    hiddenimports=['websockets.legacy.client', 'websockets.legacy.server'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
