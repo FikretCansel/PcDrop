@@ -1,13 +1,12 @@
 import threading
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from .utils import static_folder, LOCAL_IP
-from .gui import start_gui
-from .routes import router
+from src.utils import static_folder, LOCAL_IP
+from src.gui import start_gui
+from src.routes import router
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=static_folder), name="static")
-app.mount("/shared", StaticFiles(directory=static_folder), name="shared")
 app.include_router(router)
 
 @app.on_event("startup")

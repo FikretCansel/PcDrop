@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PcDrop- Dosya yükle</title>
-    <!-- Link to CSS File -->
-    <link rel="stylesheet" href="../static/styles.css">
+    <title>PcDrop - Dosya Transfer</title>
+    <link rel="stylesheet" href="/static/css/base.css">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div class="container">
-        <h2>Welcome to PcDrop</h2>
-        <a href="/shared_files">Paylaşılan dosyaları görüntüle</a>
-        <p><strong>Bağlantı Adresi (Aynı Ağdaki Cihazlar için):</strong> <code>http://{{ local_ip }}:8000</code></p>
+        <h2>PcDrop'a Hoş Geldiniz</h2>
+        
+        <div class="info-section">
+            <p class="connection-info">
+                <strong>🌐 Bağlantı Adresi:</strong><br>
+                <code>http://{{ local_ip }}:8000</code>
+            </p>
+            <a href="/shared_files" class="view-files-btn">📁 Paylaşılan Dosyaları Görüntüle</a>
+        </div>
+
         <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="files" multiple>
-            <input type="submit" value="Yükle">
+            <div class="file-upload-container">
+                <input type="file" name="files" multiple id="fileInput">
+                <p class="file-upload-text">Dosyaları seçmek için tıklayın veya sürükleyin</p>
+            </div>
+            <input type="submit" value="📤 Dosyaları Yükle">
         </form>
 
-        <!-- Upload Status Bar -->
         <div id="progress-container">
             <div id="progress-bar"></div>
         </div>
@@ -31,10 +39,61 @@
         const progressContainer = document.getElementById("progress-container");
         const progressBar = document.getElementById("progress-bar");
         const statusText = document.getElementById("status");
+        const fileInput = document.getElementById("fileInput");
+        const uploadText = document.querySelector(".file-upload-text");
 
+        // Dosya seçildiğinde metin güncelleme
+        fileInput.addEventListener("change", function() {
+            const fileCount = this.files.length;
+            if (fileCount > 0) {
+                uploadText.textContent = `${fileCount} dosya seçildi`;
+            } else {
+                uploadText.textContent = "Dosyaları seçmek için tıklayın veya sürükleyin";
+            }
+        });
+
+        // Sürükle-bırak işlemleri
+        const dropZone = document.querySelector(".file-upload-container");
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('highlight');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('highlight');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        }
+
+        // Form gönderimi
         form.onsubmit = async function (event) {
             event.preventDefault();
-
             const formData = new FormData(form);
             const request = new XMLHttpRequest();
 
@@ -44,23 +103,29 @@
                 if (event.lengthComputable) {
                     const percentage = (event.loaded / event.total) * 100;
                     progressBar.style.width = percentage + "%";
-                    statusText.innerHTML = "Uploading... " + Math.round(percentage) + "%";
+                    statusText.innerHTML = `Yükleniyor... ${Math.round(percentage)}%`;
                 }
             };
 
             request.onload = function () {
                 if (request.status === 200) {
-                    progressContainer.style.display = "none"
-                    statusText.innerHTML = "Upload completed!";
+                    progressBar.style.backgroundColor = "#4CAF50";
+                    statusText.innerHTML = "✅ Yükleme tamamlandı!";
+                    setTimeout(() => {
+                        progressContainer.style.display = "none";
+                        statusText.innerHTML = "";
+                        uploadText.textContent = "Dosyaları seçmek için tıklayın veya sürükleyin";
+                        form.reset();
+                    }, 3000);
                 } else {
-                    statusText.innerHTML = "Upload error!";
+                    progressBar.style.backgroundColor = "#ff3333";
+                    statusText.innerHTML = "❌ Yükleme başarısız!";
                 }
             };
 
-            progressContainer.style.display = "block"; // Show the progress bar
+            progressContainer.style.display = "block";
             request.send(formData);
         };
     </script>
-
 </body>
 </html>

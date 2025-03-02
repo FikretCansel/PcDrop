@@ -2,8 +2,8 @@ import os
 from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
-from .utils import LOCAL_IP, templates_folder
-from .config import upload_directory, shared_directory
+from src.utils import LOCAL_IP, templates_folder
+from src.config import upload_directory, shared_directory
 
 router = APIRouter()
 templates = Jinja2Templates(directory=templates_folder)

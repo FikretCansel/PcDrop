@@ -3,96 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paylaşılan Dosyalar</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        h1 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .file-list {
-            list-style-type: none;
-            padding: 0;
-            width: 80%;
-            max-width: 600px;
-        }
-
-        .file-item {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin: 10px 0;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .file-item a {
-            color: #4CAF50;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .file-item a:hover {
-            text-decoration: underline;
-        }
-
-        .file-item .download-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .file-item .download-btn:hover {
-            background-color: #45a049;
-        }
-
-        .back-link {
-            margin-top: 30px;
-            font-size: 16px;
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        .download-all-btn {
-            background-color: #2196F3;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        .download-all-btn:hover {
-            background-color: #1976D2;
-        }
-    </style>
+    <title>PcDrop - Paylaşılan Dosyalar</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/shared_files.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Paylaşılan Dosyalar</h1>
@@ -112,17 +27,17 @@
 
     <script>
         function downloadAll() {
-    console.log('Çalıştı');
-    {% for file in files %}
-        setTimeout(function() {
-            const link = document.createElement('a');
-            link.href = "/download/{{ file }}";
-            link.download = link.href.split('/').pop();
-            link.click();
-            console.log('İndirildi: {{ file }}');
-        }, 1000 * {{ loop.index }});
-    {% endfor %}
-}
+            {% for file in files %}
+                setTimeout(function() {
+                    const link = document.createElement('a');
+                    link.href = "/download/{{ file }}";
+                    link.download = link.href.split('/').pop();
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, 500 * {{ loop.index }});
+            {% endfor %}
+        }
     </script>
 </body>
 </html>

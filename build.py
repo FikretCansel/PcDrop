@@ -9,8 +9,9 @@ def build_exe():
             '--name=PcDrop',
             '--onefile',
             '--windowed',
-            '--add-data=static;static',
-            '--add-data=templates;templates',
+            '--add-data=static/*;static',
+            '--add-data=static/css/*;static/css',  # Add CSS subfolder explicitly
+            '--add-data=templates/*;templates',
             '--icon=static/favicon.ico'
         ])
     except Exception as e:
