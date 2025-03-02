@@ -87,8 +87,11 @@ def start_gui():
 
     # Organize by date checkbox
     organize_var = tk.BooleanVar(value=config.get("organize_by_date", False))
+    skip_duplicates_var = tk.BooleanVar(value=config.get("skip_duplicates", False))
+    
     def on_checkbox_change():
         config["organize_by_date"] = organize_var.get()
+        config["skip_duplicates"] = skip_duplicates_var.get()
         save_config(config)
     
     organize_frame = ttk.Frame(left_frame)
@@ -101,6 +104,15 @@ def start_gui():
         command=on_checkbox_change
     )
     organize_check.pack(side=tk.LEFT)
+    
+    # Skip duplicates checkbox
+    skip_duplicates_check = ttk.Checkbutton(
+        organize_frame,
+        text="Aynı isimdeki dosyaları atla",
+        variable=skip_duplicates_var,
+        command=on_checkbox_change
+    )
+    skip_duplicates_check.pack(side=tk.LEFT, padx=(10, 0))
 
     upload_buttons_frame = ttk.Frame(left_frame)
     upload_buttons_frame.pack(fill=tk.X, pady=5)

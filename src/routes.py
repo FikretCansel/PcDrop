@@ -49,6 +49,11 @@ def organize_file(file_path):
     filename = os.path.basename(file_path)
     new_path = os.path.join(month_path, filename)
     
+    # If skip_duplicates is enabled and file exists, return None
+    if config.get("skip_duplicates", False) and os.path.exists(new_path):
+        os.remove(file_path)  # Remove the temporary file
+        return None
+    
     # Add number suffix if file with same name exists
     counter = 1
     base_name, ext = os.path.splitext(filename)
@@ -85,18 +90,37 @@ async def download_all(request: Request):
 @router.post("/upload")
 async def upload_files(files: list[UploadFile] = File(...)):
     saved_files = []
+    skipped_files = []
+    
     if upload_directory:
         for file in files:
             temp_path = os.path.join(upload_directory, file.filename)
+            
+            # Check for duplicates before saving if skip_duplicates is enabled
+            target_path = os.path.join(upload_directory, file.filename)
+            if config.get("skip_duplicates", False) and os.path.exists(target_path):
+                skipped_files.append(file.filename)
+                continue
+                
             # First save to temporary location
             with open(temp_path, "wb") as f:
                 f.write(await file.read())
             
             # Organize file (if organize_by_date is active)
             final_path = organize_file(temp_path)
-            saved_files.append(os.path.basename(final_path))
-            
+            if final_path:  # If file wasn't skipped
+                saved_files.append(os.path.basename(final_path))
+            else:
+                skipped_files.append(file.filename)
     else:
-        return {"message": "No folder selected!"}
+        return {"message": "Dosya seçilmedi"}
 
-    return {"message": "Files uploaded successfully!", "filenames": saved_files}
+    message = "Yükleme tamamlandı!"
+    if skipped_files:
+        message += f" (Tekrarlanan {len(skipped_files)} dosya atlandı)"
+        
+    return {
+        "message": message,
+        "filenames": saved_files,
+        "skipped": skipped_files
+    }

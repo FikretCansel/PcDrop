@@ -109,8 +109,10 @@
 
             request.onload = function () {
                 if (request.status === 200) {
+                    const response = JSON.parse(request.responseText);
                     progressBar.style.backgroundColor = "#4CAF50";
-                    statusText.innerHTML = "✅ Yükleme tamamlandı!";
+                    statusText.innerHTML = `✅ ${response.message}`;
+                    
                     setTimeout(() => {
                         progressContainer.style.display = "none";
                         statusText.innerHTML = "";
