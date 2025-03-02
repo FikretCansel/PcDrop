@@ -1,4 +1,5 @@
 build
 .venv
 .idea
+src/__pycache__
 file_transfer.egg-info

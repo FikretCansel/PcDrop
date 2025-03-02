@@ -42,17 +42,17 @@
         const fileInput = document.getElementById("fileInput");
         const uploadText = document.querySelector(".file-upload-text");
 
-        // Dosya seçildiğinde metin güncelleme
+        // File selection text update
         fileInput.addEventListener("change", function() {
             const fileCount = this.files.length;
             if (fileCount > 0) {
-                uploadText.textContent = `${fileCount} dosya seçildi`;
+                uploadText.textContent = `${fileCount} files selected`;
             } else {
-                uploadText.textContent = "Dosyaları seçmek için tıklayın veya sürükleyin";
+                uploadText.textContent = "Click or drag files to upload";
             }
         });
 
-        // Sürükle-bırak işlemleri
+        // Drag and drop operations
         const dropZone = document.querySelector(".file-upload-container");
         
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -91,7 +91,7 @@
             fileInput.dispatchEvent(event);
         }
 
-        // Form gönderimi
+        // Form submission
         form.onsubmit = async function (event) {
             event.preventDefault();
             const formData = new FormData(form);

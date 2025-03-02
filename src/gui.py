@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 import os
 from src.config import config, save_config, upload_directory, shared_directory
-from src.utils import LOCAL_IP, base_path
+from src.utils import base_path, LOCAL_IP
 
 def select_directory(title, default_directory):
     root = tk.Tk()
@@ -50,7 +50,7 @@ def start_gui():
     content_frame = ttk.Frame(main_frame)
     content_frame.pack(fill=tk.BOTH, expand=True)
     
-    # Left column for upload directory
+    # Left column for incoming files
     left_frame = ttk.LabelFrame(content_frame, text="Gelen Dosyaların Klasörü", padding="10")
     left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
@@ -85,6 +85,23 @@ def start_gui():
     upload_path_label = ttk.Label(left_frame, text=upload_directory, wraplength=300)
     upload_path_label.pack(fill=tk.X, pady=(0, 10))
 
+    # Organize by date checkbox
+    organize_var = tk.BooleanVar(value=config.get("organize_by_date", False))
+    def on_checkbox_change():
+        config["organize_by_date"] = organize_var.get()
+        save_config(config)
+    
+    organize_frame = ttk.Frame(left_frame)
+    organize_frame.pack(fill=tk.X, pady=5)
+    
+    organize_check = ttk.Checkbutton(
+        organize_frame, 
+        text="Klasörlendirerek taşı (Yıl/Ay bazında)", 
+        variable=organize_var,
+        command=on_checkbox_change
+    )
+    organize_check.pack(side=tk.LEFT)
+
     upload_buttons_frame = ttk.Frame(left_frame)
     upload_buttons_frame.pack(fill=tk.X, pady=5)
 
@@ -94,7 +111,7 @@ def start_gui():
     goto_upload_btn = ttk.Button(upload_buttons_frame, text="Klasöre Git", command=go_to_folder)
     goto_upload_btn.pack(side=tk.LEFT)
 
-    # Right column for shared directory
+    # Right column for shared files
     right_frame = ttk.LabelFrame(content_frame, text="Paylaşılan(Giden) Dosyaların Klasörü", padding="10")
     right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
