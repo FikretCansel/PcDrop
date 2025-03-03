@@ -3,3 +3,4 @@ build
 .idea
 src/__pycache__
 file_transfer.egg-info
+pcdrop-landing
