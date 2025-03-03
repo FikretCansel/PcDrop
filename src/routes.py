@@ -105,12 +105,14 @@ async def main(request: Request):
 
 @router.get("/shared_files", response_class=HTMLResponse)
 async def shared_files(request: Request):
-    files = os.listdir(shared_directory) if os.path.exists(shared_directory) else []
+    current_shared_dir = config.get("shared_directory", shared_directory)
+    files = os.listdir(current_shared_dir) if os.path.exists(current_shared_dir) else []
     return templates.TemplateResponse("shared_files.html", {"request": request, "files": files})
 
 @router.get("/download/{filename}")
 async def download_file(filename: str):
-    file_path = os.path.join(shared_directory, filename)
+    current_shared_dir = config.get("shared_directory", shared_directory)
+    file_path = os.path.join(current_shared_dir, filename)
     if os.path.exists(file_path):
         return FileResponse(file_path)
     return {"error": "Dosya bulunamadı"}

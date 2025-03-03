@@ -19,8 +19,6 @@ def select_directory(title, default_directory):
     return directory
 
 def start_gui():
-    global upload_directory, shared_directory
-
     root = tk.Tk()
     root.title("PcDrop - Dosya Paylaşım Aracı")
 
