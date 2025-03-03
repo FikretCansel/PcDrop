@@ -2,6 +2,15 @@
 
 PC Drop is a tool that allows you to quickly and easily transfer files from your phone or other devices to your computer, and vice versa.
 
+Desktop App:
+![image](https://github.com/user-attachments/assets/afc24b51-d248-41a4-bca0-944fab9f14c5)
+
+Mobile Client Home screen:
+![image](https://github.com/user-attachments/assets/abae06bc-3f4b-4cd3-b7f8-634d149042e1)
+
+Mobile Client Shared Files:
+![image](https://github.com/user-attachments/assets/31d57c58-fdc6-41c2-86f6-a9c00f0e664b)
+
 ## 🚀 Features
 
 - **Easy File Transfer**: Quick file transfer from other devices via QR code or IP address
